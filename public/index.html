@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dolphin netplay proxy</title>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+	<style>
+		body {
+			font-family: 'Open Sans', sans-serif;
+		}
+
+		pre {
+			font-family: Courier
+		}
+
+		h1 img {
+			vertical-align: middle;
+		}
+	</style>
+</head>
+<body>
+	<h1>
+		<img src="/icon.gif" />
+		Welcome to Dolphin netplay proxy
+	</h1>
+	<p>
+		<label>IPv4 address + port of hoster, ex: <b>165.45.186.45:5000</b></label><br>
+		<input type="text" placeholder="target add ex: 0.0.0.0:0000" id="addr" value="127.0.0.1:5000" /> <button id="start-server">Start</button>
+	<p>
+
+	<pre id="log"></pre>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+	  var socket = io();
+
+	  document.getElementById('start-server').addEventListener('click', function() {
+	  	socket.emit('addr', document.getElementById('addr').value);
+	  });
+
+	  var logContainer = document.getElementById('log');
+	  socket.on('log', function(msg) {
+    	logContainer.innerHTML = msg + "\n" + logContainer.innerHTML;
+      });
+	</script>
+</body>
+</html>

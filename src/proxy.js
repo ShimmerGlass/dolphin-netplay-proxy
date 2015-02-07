@@ -1,0 +1,59 @@
+var proxy = require('udp-proxy');
+
+var baseOptions = {
+    ipv6: false,
+    localaddress: '0.0.0.0',
+    localport: 53535,
+    localipv6: false,
+    timeOutTime: 10000
+};
+
+var proxyInstance;
+var eventListeners = [];
+
+function sendMessage(msg) {
+	for (var i in eventListeners)
+		eventListeners[i](msg)
+}
+
+module.exports = {
+	start: function(addr, port) {
+		if (proxyInstance)
+			proxyInstance.close();
+
+		baseOptions.address = addr;
+		baseOptions.port = port;
+
+		proxyInstance = proxy.createServer(baseOptions);
+
+		proxyInstance.on('listening', function (details) {
+		    sendMessage('dolphin-netplay-proxy ready on ' + details.server.family + '  ' + details.server.address + ':' + details.server.port);
+		    sendMessage('traffic is forwarded to ' + details.target.family + '  ' + details.target.address + ':' + details.target.port);
+		});
+
+		// 'bound' means the connection to server has been made and the proxying is in action
+		proxyInstance.on('bound', function (details) {
+		    sendMessage('proxy is bound to ' + details.route.address + ':' + details.route.port);
+		    sendMessage('peer is bound to ' + details.peer.address + ':' + details.peer.port);
+		});
+
+		// 'proxyClose' is emitted when the socket closes (from a timeout) without new messages
+		proxyInstance.on('proxyClose', function (peer) {
+		    sendMessage('disconnecting socket from ' + peer.address);
+		});
+
+		proxyInstance.on('proxyError', function (err) {
+		    sendMessage('ProxyError! ' + err);
+		});
+
+		proxyInstance.on('error', function (err) {
+		    sendMessage('Error! ' + err);
+		});
+	},
+	stop: function() {
+		proxy.close();
+	},
+	onMessage: function(cb) {
+		eventListeners.push(cb);
+	}
+};
