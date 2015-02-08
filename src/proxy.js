@@ -1,4 +1,5 @@
 var proxy = require('udp-proxy');
+var getIp = require('./ip');
 
 var baseOptions = {
     ipv6: false,
@@ -27,14 +28,14 @@ module.exports = {
 		proxyInstance = proxy.createServer(baseOptions);
 
 		proxyInstance.on('listening', function (details) {
-		    sendMessage('dolphin-netplay-proxy ready on ' + details.server.family + '  ' + details.server.address + ':' + details.server.port);
-		    sendMessage('traffic is forwarded to ' + details.target.family + '  ' + details.target.address + ':' + details.target.port);
+		    sendMessage('dolphin-netplay-proxy ready on <b>' + getIp() + ':' + details.server.port + '</b>');
+		    sendMessage('traffic is forwarded to <b>' + details.target.address + ':' + details.target.port + '</b>');
 		});
 
 		// 'bound' means the connection to server has been made and the proxying is in action
 		proxyInstance.on('bound', function (details) {
-		    sendMessage('proxy is bound to ' + details.route.address + ':' + details.route.port);
-		    sendMessage('peer is bound to ' + details.peer.address + ':' + details.peer.port);
+		    sendMessage('proxy is bound to <b>' + getIp() + ':' + details.route.port + '</b>');
+		    sendMessage('peer is bound to <b>' + details.peer.address + ':' + details.peer.port + '</b>');
 		});
 
 		// 'proxyClose' is emitted when the socket closes (from a timeout) without new messages

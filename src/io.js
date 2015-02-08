@@ -14,7 +14,11 @@ module.exports = {
 			sendLog('a user connected');
 			
 			socket.on('addr', function(msg) {
-				cb(msg);
+				try {
+					cb(msg);
+				} catch (e){
+					sendLog('Error : ' + e.message);
+				}
 			});
 		});
 	},

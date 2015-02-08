@@ -2,11 +2,10 @@ var server = require('./src/http-server')(3000);
 var io = require('./src/io');
 var proxy = require('./src/proxy');
 
-proxy.onMessage(function(msg) {
-	console.log(msg);
-})
-
 io.start(server, function(addr) {
+	if (!addr.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+/))
+		throw 'Add invalid';
+	
 	var parts = addr.split(':');
 	proxy.start(parts[0], parts[1]);
 });
